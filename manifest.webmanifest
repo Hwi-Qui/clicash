@@ -2,7 +2,7 @@
   "id": "./index.html",
   "name": "Clicash",
   "short_name": "Clicash",
-  "description": "Joue, clique, parraine et convertis tes points en Cli.",
+  "description": "Marketplace électronique, crédits CLI et suivi des commandes Clicash.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./index.html",
@@ -11,15 +11,66 @@
   "orientation": "portrait-primary",
   "background_color": "#F3F4F6",
   "theme_color": "#16A34A",
-  "categories": ["games", "finance", "entertainment"],
+  "categories": [
+    "shopping",
+    "finance"
+  ],
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    { "name": "Jeu de clics", "short_name": "Clics", "url": "./index.html#/clicker", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
-    { "name": "Retrait", "short_name": "Retrait", "url": "./index.html#/withdraw", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
-    { "name": "Portefeuille", "short_name": "Portefeuille", "url": "./index.html#/wallet", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+    {
+      "name": "Marketplace",
+      "short_name": "Boutique",
+      "url": "./index.html#/market",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Mon inventaire",
+      "short_name": "Inventaire",
+      "url": "./index.html#/inventory",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Retrait / dépôt",
+      "short_name": "Portefeuille",
+      "url": "./index.html#/withdraw",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }
