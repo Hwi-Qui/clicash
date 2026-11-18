@@ -1130,6 +1130,43 @@ html[data-theme="dark"] .tb-logo{background:transparent}
 .market-stats{margin-bottom:16px}
 .home-quick{margin-bottom:18px}
 
+/* ---------- Évolution de l'inventaire ---------- */
+.market-value-card{display:flex;flex-direction:column;justify-content:space-between;min-height:280px}
+.inv-evo-val-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:12px 0 10px;flex-wrap:wrap}
+.inv-evo-val{font-size:24px;font-family:'Manrope',sans-serif;font-weight:800;color:var(--navy)}
+.inv-evo-val span{font-size:14px;color:var(--gray);font-weight:700}
+.inv-evo-count{font-size:12px;color:var(--gray);font-weight:600}
+.inv-evo-chart-wrap{margin-top:auto}
+.inv-evo-svg{display:block;width:100%;height:120px;overflow:visible}
+.inv-evo-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 10px;margin:auto 0;background:var(--tint);border-radius:14px;gap:8px}
+.inv-evo-empty-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--blue-bg);color:var(--blue)}
+.inv-evo-empty-icon svg{width:22px;height:22px}
+.inv-evo-empty-txt h4{font-size:14px;font-weight:800;margin:0 0 4px}
+.inv-evo-empty-txt p{font-size:12px;color:var(--gray);max-width:320px;margin:0}
+html[data-theme="dark"] .inv-evo-val{color:#fff}
+html[data-theme="dark"] .inv-evo-empty{background:rgba(255,255,255,.03)}
+
+/* ---------- Barre du haut ultra-fluide (évite les cassures avec grands montants) ---------- */
+@media(max-width:480px){
+  .topbar{padding:10px 14px}
+  .tb-balance{padding:0 8px 0 6px;gap:5px;height:38px;max-width:140px}
+  .tb-balance .cli-ico{width:24px;height:24px}
+  .tb-balance b{font-size:13.5px}
+  .tbb-unit{font-size:11px}
+  .tb-actions{gap:6px}
+  .icon-btn{width:36px;height:36px}
+  .avatar{width:34px;height:34px}
+}
+@media(max-width:420px){
+  .ref-pill{padding:0 9px;height:36px;gap:0}
+  .ref-pill span{display:none}
+  .tb-balance{max-width:120px}
+  .tb-actions{gap:4px}
+}
+@media(max-width:340px){
+  .theme-btn{display:none}
+}
+
 /* ---------- Listes défilantes (barre de défilement) ---------- */
 .scroll-list{
   overflow-y:auto;
@@ -1289,47 +1326,18 @@ const Store={
     if(db.users.some(x=>x.isSeed)){db.users=db.users.filter(x=>!x.isSeed);db.wallets=db.wallets.filter(x=>db.users.some(u=>u.id===x.userId));changed=true;}
     const before=db.withdraw_objectives.length;
     db.withdraw_objectives=db.withdraw_objectives.filter(x=>!['games_played','challenges_done','clicker_points','clicks_total'].includes(x.type));
-    // Compte Test VIP (1 000 000 CLI)
-    const vipId='u-vip1000000';
-    let vip=db.users.find(x=>x.id===vipId||x.pseudo==='testvip'||x.email==='testvip@clicash.com');
-    if(!vip){
-      vip={id:vipId,nom:'VIP',prenom:'Test',pseudo:'testvip',email:'testvip@clicash.com',phone:'+228 90 00 00 00',pass:'96837cbba12d73bed62df5ac6503bfa973b6555ae2b4a2a09bf7ad0a089a576b',salt:'s4lt_v1p_2026',emailVerified:true,avatar:null,devices:[],createdAt:'2026-01-01T00:00:00.000Z'};
-      db.users.push(vip); changed=true;
-    }
-    let vipWallet=db.wallets.find(x=>x.userId===vip.id);
-    if(!vipWallet){
-      vipWallet={userId:vip.id,balance:1000000,pending:0,totalEarned:1000000,accountNo:'ME26-777777',status:'actif',createdAt:'2026-01-01T00:00:00.000Z'};
-      db.wallets.push(vipWallet); changed=true;
-    } else if(vipWallet.balance<1000000){
-      vipWallet.balance=1000000; vipWallet.totalEarned=Math.max(vipWallet.totalEarned||0,1000000); changed=true;
-    }
-    if(!db.referrals.some(x=>x.userId===vip.id)){
-      db.referrals.push({userId:vip.id,code:'MNX-VIP777',invited:4,confirmed:3,verified:3,createdAt:'2026-01-01T00:00:00.000Z'});
-      changed=true;
-    }
-    if(!db.user_settings.some(x=>x.userId===vip.id)){
-      db.user_settings.push({userId:vip.id,notifEmail:true,notifPush:true,language:'fr',display:'confort',privacyLeaderboard:true});
-      changed=true;
-    }
-    const vipTxCount = db.wallet_transactions.filter(x=>x.userId===vip.id).length;
-    if(vipTxCount < 5){
-      db.wallet_transactions = db.wallet_transactions.filter(x=>x.userId!==vip.id);
-      const nowMs = Date.now();
-      const sampleTxs = [
-        {id:'tx-v1',userId:vip.id,type:'depot',label:'Dépôt confirmé · Recharge de compte',amount:1000000,date:new Date(nowMs-1000*60*25).toISOString(),ref:'DEP-VIP-1000K',status:'confirmé'},
-        {id:'tx-v2',userId:vip.id,type:'achat',label:'Achat marketplace · Smartphone Galaxy Pro',amount:185000,date:new Date(nowMs-1000*60*65).toISOString(),ref:'CMD-VIP-881',status:'confirmé'},
-        {id:'tx-v3',userId:vip.id,type:'parrainage',label:'Bonus parrainage · Inscription confirmée',amount:5000,date:new Date(nowMs-1000*60*120).toISOString(),ref:'REF-VIP-092',status:'confirmé'},
-        {id:'tx-v4',userId:vip.id,type:'livraison',label:'Frais de livraison express · Commande #881',amount:3500,date:new Date(nowMs-1000*60*180).toISOString(),ref:'LIV-VIP-443',status:'confirmé'},
-        {id:'tx-v5',userId:vip.id,type:'achat',label:'Achat marketplace · Écouteurs sans fil ANC',amount:42000,date:new Date(nowMs-1000*60*260).toISOString(),ref:'CMD-VIP-884',status:'confirmé'},
-        {id:'tx-v6',userId:vip.id,type:'depot',label:'Dépôt validé · T-Money Mobile',amount:50000,date:new Date(nowMs-1000*60*380).toISOString(),ref:'DEP-VIP-50K',status:'confirmé'},
-        {id:'tx-v7',userId:vip.id,type:'achat',label:'Achat marketplace · Montre connectée Fit',amount:32000,date:new Date(nowMs-1000*60*500).toISOString(),ref:'CMD-VIP-889',status:'confirmé'}
-      ];
-      sampleTxs.forEach(t=>db.wallet_transactions.unshift(t));
-      changed=true;
-    }
-    if(!db.market_deposits.some(x=>x.userId===vip.id)){
-      db.market_deposits.unshift({id:'dep-vip-init',userId:vip.id,amount:1000000,cli:1000000,method:'tmoney',reference:'DEP-VIP-1000K',status:'validé',createdAt:'2026-01-01T00:00:00.000Z'});
-      changed=true;
+    // Supprimer définitivement le compte VIP test s'il existe
+    const vipUsers = db.users.filter(x => x.id === 'u-vip1000000' || x.pseudo === 'testvip' || x.email === 'testvip@clicash.com');
+    if(vipUsers.length > 0){
+      const vipIds = vipUsers.map(x => x.id);
+      db.users = db.users.filter(x => !vipIds.includes(x.id));
+      db.wallets = db.wallets.filter(x => !vipIds.includes(x.userId));
+      db.referrals = db.referrals.filter(x => !vipIds.includes(x.userId));
+      db.user_settings = db.user_settings.filter(x => !vipIds.includes(x.userId));
+      db.wallet_transactions = db.wallet_transactions.filter(x => !vipIds.includes(x.userId));
+      db.market_deposits = db.market_deposits.filter(x => !vipIds.includes(x.userId));
+      changed = true;
+      try{ const s = Session.current(); if(s && vipIds.includes(s.userId)) Session.clear(); }catch(_){}
     }
     if(before!==db.withdraw_objectives.length)changed=true;
     if(changed)this.write();
@@ -1486,10 +1494,39 @@ function themeRowHTML(){ const p=Theme.pref();
    +'</div></div>'; }
 
 
-/* ---------- Encadré de solde (barre du haut) ---------- */
+/* ---------- Encadré de solde réactif & compact (barre du haut) ---------- */
+function compactCli(n){
+  n = Math.round(Number(n) || 0);
+  if(n >= 1000000){
+    const m = n / 1000000;
+    const decimals = m >= 100 ? 0 : (m >= 10 ? 1 : 2);
+    let s = m.toFixed(decimals);
+    if(s.includes('.')) s = s.replace(/\.?0+$/, '');
+    return s.replace('.', ',') + 'M';
+  }
+  return fmt(n);
+}
 const ckFmt = fmt;
-function topBalText(u){ if(SafeStorage.getItem('me_hide')==='1') return '•••'; const w=Store.read().wallets.find(x=>x.userId===u.id); return fmt(w?w.balance:0); }
-function updateTopBalance(){ try{ const e=document.getElementById('tbBal'); if(!e) return; const u=Auth.currentUser(); if(!u) return; const t=topBalText(u); if(e.textContent!==t) e.textContent=t; }catch(_){} }
+function topBalText(u){
+  if(SafeStorage.getItem('me_hide')==='1') return '•••';
+  const w=Store.read().wallets.find(x=>x.userId===u.id);
+  return compactCli(w ? w.balance : 0);
+}
+function updateTopBalance(){
+  try{
+    const e=document.getElementById('tbBal');
+    if(!e) return;
+    const u=Auth.currentUser();
+    if(!u) return;
+    const t=topBalText(u);
+    if(e.textContent!==t) e.textContent=t;
+    const btn=document.getElementById('tbBalance');
+    if(btn){
+      const w=Store.read().wallets.find(x=>x.userId===u.id);
+      btn.title='Mon solde : ' + fmt(w?w.balance:0) + ' Cli';
+    }
+  }catch(_){}
+}
 /* ---------- PWA : installation + hors ligne ---------- */
 const PWA={ prompt:null,
   standalone(){ return (window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true; },
@@ -1687,6 +1724,67 @@ const Market={
     Store.mutate(db=>db.market_deposits.unshift(row));return {ok:true,row};
   }
 };
+function inventoryEvolutionHTML(u, summary, values, hide){
+  const mask = v => hide ? '•• •••' : fmt(v);
+  const hasItems = summary.items && summary.items.length > 0;
+  const currentVal = values[values.length - 1] || 0;
+  const startVal = values[0] || 0;
+  const delta = startVal > 0 ? ((currentVal - startVal) / startVal) * 100 : 0;
+  const trendSign = delta > 0 ? '+' : '';
+  const trendText = hasItems ? (trendSign + delta.toFixed(1).replace('.', ',') + ' % sur 7 j') : '0 article';
+  const badgeCls = !hasItems ? 'b-gray' : (delta >= 0 ? 'b-green' : 'b-red');
+  const badgeIco = !hasItems ? 'package' : (delta >= 0 ? 'trending-up' : 'trending-down');
+
+  let body = '';
+  if(!hasItems){
+    body = '<div class="inv-evo-empty">'
+      +'<div class="inv-evo-empty-icon">' + ic('package-open') + '</div>'
+      +'<div class="inv-evo-empty-txt"><h4>Aucun produit dans ton inventaire</h4>'
+      +'<p>Achète des articles sur la marketplace pour suivre l’évolution de leur estimation virtuelle ici.</p></div>'
+      +'<button class="btn btn-primary btn-sm" onclick="go(\'market\')">' + ic('shopping-bag') + 'Découvrir la marketplace</button>'
+      +'</div>';
+  } else {
+    const w = 520, h = 130, pad = 10;
+    const min = Math.min(...values), max = Math.max(...values), span = (max - min) || 1;
+    const pts = values.map((v, i) => {
+      const x = pad + i * (w - 2 * pad) / (values.length - 1);
+      const y = h - pad - ((v - min) * (h - 2 * pad) / span);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    const lastPt = pts[pts.length - 1].split(',');
+    const areaPts = [pad + ',' + (h - pad), ...pts, (w - pad) + ',' + (h - pad)].join(' ');
+    const ptsStr = pts.join(' ');
+
+    body = '<div class="inv-evo-chart-wrap">'
+      +'<svg class="inv-evo-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">'
+      +'<defs>'
+      +'<linearGradient id="invEvoGrad" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0%" stop-color="#16A34A" stop-opacity="0.3"/>'
+      +'<stop offset="100%" stop-color="#16A34A" stop-opacity="0.02"/>'
+      +'</linearGradient>'
+      +'</defs>'
+      +'<line x1="' + pad + '" y1="' + (h - pad) + '" x2="' + (w - pad) + '" y2="' + (h - pad) + '" stroke="var(--line2)" stroke-width="1"/>'
+      +'<polygon points="' + areaPts + '" fill="url(#invEvoGrad)"/>'
+      +'<polyline points="' + ptsStr + '" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+      +'<circle cx="' + lastPt[0] + '" cy="' + lastPt[1] + '" r="5" fill="#16A34A" stroke="#fff" stroke-width="2"/>'
+      +'</svg>'
+      +'<div class="market-chart-labels"><span>Il y a 7 jours</span><span>Aujourd’hui</span></div>'
+      +'</div>';
+  }
+
+  return '<section class="card market-value-card">'
+    +'<div class="market-card-head">'
+    +'<div><h3>Évolution de ton inventaire</h3><p>Estimation virtuelle sur 7 jours</p></div>'
+    +'<span class="badge ' + badgeCls + '">' + ic(badgeIco) + trendText + '</span>'
+    +'</div>'
+    +'<div class="inv-evo-val-row">'
+    +'<div class="inv-evo-val"><b>' + mask(summary.value) + '</b> <span>CLI</span></div>'
+    +'<div class="inv-evo-count">' + (hasItems ? (summary.items.length + ' article' + (summary.items.length > 1 ? 's' : '') + ' possédé' + (summary.items.length > 1 ? 's' : '')) : 'Inventaire non approvisionné') + '</div>'
+    +'</div>'
+    + body
+    +'</section>';
+}
+
 function marketChart(values,large){
   const w=large?520:150,h=large?112:44,pad=4,min=Math.min(...values),max=Math.max(...values),span=max-min||1;
   const pts=values.map((v,i)=>(pad+i*(w-2*pad)/(values.length-1))+','+(h-pad-(v-min)*(h-2*pad)/span)).join(' ');
@@ -1919,8 +2017,6 @@ function authSignup(){ return '<div class="auth-brand" style="cursor:pointer" on
 function authLogin(){ return '<div class="auth-brand" style="cursor:pointer" onclick="go(\'welcome\')"><div class="tb-logo">'+logoImg()+'</div><h1>Clicash</h1></div>'
   +'<div class="card"><h2 style="font-size:20px;margin-bottom:4px">Content de te revoir</h2>'
   +'<p style="color:var(--gray);font-size:13px;margin-bottom:14px">Connecte-toi pour retrouver ton Empire.</p>'
-  +'<div class="info-strip" style="margin-bottom:16px;cursor:pointer;background:var(--green-bg);color:var(--green);border-color:var(--bd)" onclick="$(\'#li-id\').value=\'testvip\';$(\'#li-pass\').value=\'Clicash2026!\';toast(\'Identifiants VIP remplis !\',\'ok\',\'check\');">'
-  +ic('gem')+'<div style="flex:1"><b style="color:var(--green)">Compte Test (1 000 000 CLI)</b> · <span style="text-decoration:underline;font-weight:700">Remplir auto</span><br><span style="font-size:11.5px;opacity:.9">Pseudo: <b>testvip</b> · Mot de passe: <b>Clicash2026!</b></span></div></div>'
   +'<form id="liForm" novalidate><div class="field"><label>E-mail ou pseudo</label><input class="input" id="li-id" placeholder="toi@exemple.com"><div class="f-err"></div></div>'
   +'<div class="field"><label>Mot de passe</label><div class="pass-wrap"><input class="input" id="li-pass" type="password" placeholder="Ton mot de passe"><button type="button" class="eye" onclick="togglePass(\'li-pass\',this)">'+ic('eye')+'</button></div><div class="f-err"></div></div>'
   +'<div style="text-align:right;margin:-6px 0 14px"><a style="font-size:12.5px;font-weight:700;color:var(--blue);cursor:pointer" onclick="go(\'forgot\')">Mot de passe oublié ?</a></div>'
@@ -2001,7 +2097,6 @@ function doVerify(){ clearErrs(); const u=Auth.currentUser(); const c=$('#vf-cod
 function signupReferralToast(){ const r=Auth.lastReferral; Auth.lastReferral=null; if(!r) return;
   if(r.ok) setTimeout(()=>toast('Parrainé par <b>'+esc(r.sponsor.prenom)+'</b> (@'+esc(r.sponsor.pseudo)+')','ok','users'),700);
   else if(r.reason==='auto_parrainage') setTimeout(()=>toast('Parrainage non appliqué : tu ne peux pas te parrainer toi-même.','warn','shield'),700); }
-window.loginVIP = async () => { try { await Auth.login('testvip', 'Clicash2026!'); location.hash='#/home'; route(); toast('Connecté au compte VIP (1 000 000 CLI)','ok','gem'); } catch(e){ alert(e.message); } };
 function doLogout(){ Auth.logout(); toast('Déconnexion réussie','info','log-out'); location.hash='#/welcome'; }
 function toggleHide(){ const h=SafeStorage.getItem('me_hide')==='1'; SafeStorage.setItem('me_hide',h?'0':'1'); render(); }
 
@@ -2042,8 +2137,8 @@ render(u){
     +'<button class="card card-hover" onclick="go(\'deliveries\')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:18px 10px"><div style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--amber-bg);color:var(--amber)">'+ic('truck')+'</div><div style="font-weight:800;font-size:13.5px">Livraisons</div><div style="font-size:12px;color:var(--gray)">'+fmt(summary.shipments)+' en cours</div></button>'
     +'<button class="card card-hover" onclick="go(\'wallet\')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:18px 10px"><div style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--green-bg);color:var(--green)">'+ic('wallet')+'</div><div style="font-weight:800;font-size:13.5px">Portefeuille</div><div style="font-size:12px;color:var(--gray)">'+mask(w.balance)+' CLI</div></button>'
     +'<button class="card card-hover" onclick="go(\'withdraw\')" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:18px 10px"><div style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--red-bg);color:var(--red)">'+ic('landmark')+'</div><div style="font-weight:800;font-size:13.5px">Dépôt / Retrait</div><div style="font-size:12px;color:var(--gray)">Gérer mon solde</div></button></div>'
-    +'<div class="grid-2 market-dashboard-grid"><section class="card market-value-card"><div class="market-card-head"><div><h3>Évolution de ton inventaire</h3><p>Estimation virtuelle sur 7 jours</p></div><span class="badge b-blue">'+ic('info')+'Non garantie</span></div>'
-    +marketChart(values,true)+'<div class="market-chart-labels"><span>Il y a 7 jours</span><span>Aujourd’hui</span></div></section>'
+    +'<div class="grid-2 market-dashboard-grid">'
+    +inventoryEvolutionHTML(u, summary, values, hide)
     +'<section class="card market-dash-list"><div class="market-card-head"><div><h3>Dernières opérations</h3><p>Historique du portefeuille</p></div><button class="link" onclick="go(\'wallet\')">Tout voir '+ic('chevron-right')+'</button></div>'
     +'<div class="scroll-list home-tx-scroll">'+(txs.length?txs.map(activityRow).join(''):emptyState('history','Aucune opération','Tes achats, frais et crédits confirmés apparaîtront ici.'))+'</div></section></div>'
     +'<div class="grid-2 market-dashboard-grid"><section class="card market-dash-list"><div class="market-card-head"><div><h3>Notifications de livraison</h3><p>'+fmt(summary.shipments)+' commandes suivies</p></div><button class="link" onclick="go(\'deliveries\')">Suivre '+ic('chevron-right')+'</button></div>'

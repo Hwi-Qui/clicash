@@ -3,7 +3,7 @@
    - Fichiers du site : cache d'abord
    - Polices / bibliothèques externes : stale-while-revalidate
    Changer VERSION force le renouvellement des fichiers mis en cache. */
-const VERSION = 'clicash-v10';
+const VERSION = 'clicash-v11';
 const EXT = VERSION + '-ext';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png', 'icons/apple-touch-icon.png'];
 
